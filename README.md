@@ -1,113 +1,184 @@
-# SplitMate — Smart Group Expense Tracker
+ # SplitMate – Smart Group Expense Tracker
 
-A CE-1 full-stack project built with vanilla HTML/CSS/JavaScript, Bootstrap, Node.js, Express, MongoDB and Mongoose. It tracks group expenses, supports equal/custom splits, shows transparent calculations and suggests transfers using a greedy settlement algorithm.
+**SplitMate** is a full-stack group expense management application designed to simplify shared expenses among friends, roommates, and groups. It allows users to create groups, record expenses, split costs equally or through custom contributions, track individual balances, and generate optimized settlement suggestions.
 
-## Requirements
-- Node.js 18 or newer
-- npm
-- MongoDB Community Server running locally, or a MongoDB connection URI
+Built using **Vanilla JavaScript, Bootstrap, Node.js, Express.js, MongoDB, and Mongoose**, SplitMate provides transparent expense calculations and a practical approach to managing shared finances.
 
-## Run locally
+ # Key Features
 
-```bash
-# 1. Enter the project directory
-cd splitmate
+- **User Authentication:** Secure user registration and login using JWT-based authentication and bcrypt password hashing.
+- **Group Management:** Create and manage expense-sharing groups and add registered members.
+- **Expense Tracking:** Record, update, view, and delete group expenses.
+- **Flexible Expense Splitting:** Supports equal splitting and custom participant-wise expense distribution.
+- **Balance Calculation:** Automatically calculates how much each participant owes or is owed.
+- **Smart Settlement Suggestions:** Uses a greedy settlement algorithm to minimize the number of suggested transfers through debtor-creditor matching.
+- **Settlement Management:** Record completed payments and maintain settlement history.
+- **Dashboard & Analytics:** Provides a database-backed overview of groups, expenses, and financial activity.
+- **User Search:** Find registered users by name or email.
+- **Input Validation & Security:** Implements protected API routes, server-side membership checks, request validation, rate limiting, and security headers.
 
-# 2. Install dependencies
-npm install
+## Tech Stack
 
-# 3. Create local environment configuration
-cp .env.example .env
+| Category | Technologies |
+|---|---|
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| UI Framework | Bootstrap, Bootstrap Icons |
+| Backend | Node.js, Express.js |
+| Database | MongoDB |
+| ODM | Mongoose |
+| Authentication | JSON Web Tokens (JWT), bcrypt |
+| Testing | Node.js Test Runner |
+
+## Core Technical Implementations
+
+### 1. Greedy Debt Settlement Algorithm
+Implements a greedy algorithm that matches the largest outstanding debtor with the largest creditor to generate practical settlement suggestions and reduce unnecessary transactions. The algorithm is not guaranteed to produce the globally minimum number of transactions.
+
+### 2. Accurate Financial Calculations
+- Stores monetary values as integer paise to avoid floating-point precision errors.
+- Handles equal-split remainder distribution deterministically.
+- Validates custom participant shares to ensure they match the total expense.
+- Calculates net balances using expense and settlement records.
+
+### 3. RESTful API Architecture
+Built REST API endpoints for authentication, user management, groups, expenses, balances, settlements, and dashboard analytics, with standardized JSON responses and centralized error handling.
+
+## Project Structure
+
+```text
+SplitMate/
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── index.html
+├── scripts/
+├── tests/
+├── .env.example
+├── .gitignore
+├── package.json
+├── TASK_DIVISION.md
+└── README.md
 ```
 
-Edit `.env` and set `JWT_SECRET` to a random string of at least 32 characters. Set `MONGODB_URI` to your MongoDB URI. For a local MongoDB server, the example URI is `mongodb://127.0.0.1:27017/splitmate`.
+## Getting Started
+
+### Prerequisites
+- Node.js 18 or newer
+- npm
+- MongoDB Community Server or a MongoDB connection URI
+
+### Installation
+
+**1. Clone the repository**
 
 ```bash
-# 4. Start MongoDB if it is installed locally (run this in a separate terminal if needed)
-# Windows: start MongoDB using the MongoDB service or MongoDB Compass
-# macOS with Homebrew: brew services start mongodb-community
-# Linux systemd: sudo systemctl start mongod
+git clone https://github.com/jashan012006/Splitmate---Expense-Tracker.git
+cd Splitmate---Expense-Tracker
+```
 
-# 5. Optional: load fictional demo data (requires MongoDB to be running)
-npm run seed
+**2. Install dependencies**
 
-# 6. Start the application
+```bash
+npm install
+```
+
+**3. Configure environment variables**
+
+Create a `.env` file using `.env.example` as a reference.
+
+```env
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/splitmate
+JWT_SECRET=your_random_secret_of_at_least_32_characters
+```
+
+Use a strong, randomly generated JWT secret. Never commit your `.env` file.
+
+**4. Start the application**
+
+```bash
 npm start
 ```
 
-Open **http://localhost:5000**. `npm run dev` runs the server with Node's watch mode. The server intentionally exits with a clear error if `JWT_SECRET` is weak or MongoDB is unreachable; it does not silently replace MongoDB with another store.
+Open the application at:
 
-### Demo credentials
-After running `npm run seed`:
-- `aarav@splitmate.demo` / `SplitMateDemo2026!`
-- `diya@splitmate.demo` / `SplitMateDemo2026!`
-- `kabir@splitmate.demo` / `SplitMateDemo2026!`
+`http://localhost:5000`
 
-Seed deletes and recreates the demo users and the groups owned by those demo users, along with their related expenses and settlements. It is scoped to the demo users, but review the script before running it on a shared database.
+For development with automatic server restarts:
 
-## Test
+```bash
+npm run dev
+```
+
+### Optional: Load Demo Data
+
+With MongoDB running:
+
+```bash
+npm run seed
+```
+
+This creates fictional demo users and sample group data. The seed script deletes and recreates data belonging to its designated demo users, so review it before running against a shared database.
+
+### Demo Credentials
+
+| Email | Password |
+|---|---|
+| aarav@splitmate.demo | SplitMateDemo2026! |
+| diya@splitmate.demo | SplitMateDemo2026! |
+| kabir@splitmate.demo | SplitMateDemo2026! |
+
+## Testing
+
+Run the automated test suite:
 
 ```bash
 npm test
 ```
 
-The automated Node tests cover equal split rounding, custom share validation, duplicate custom participants, greedy settlement balance clearing and zero-balance behavior. They do not require a running database. API integration tests require MongoDB and are not represented as passing by the unit test command.
+The unit tests cover:
+- Equal expense split calculations and rounding.
+- Custom share validation.
+- Duplicate participant validation.
+- Greedy settlement balance clearing.
+- Zero-balance scenarios.
 
-## Main routes
+The finance unit tests do not require a running MongoDB instance. API integration tests require MongoDB.
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/api/health` | Server/database health |
-| POST | `/api/auth/register` | Register and receive JWT |
-| POST | `/api/auth/login` | Login and receive JWT |
-| GET | `/api/auth/me` | Current authenticated user |
-| PATCH | `/api/users/me` | Update display name |
-| GET/POST | `/api/groups` | List/create groups |
-| GET/DELETE | `/api/groups/:id` | Read/delete group (owner-only delete) |
-| POST | `/api/groups/:id/members` | Add registered member (owner only) |
-| GET/POST | `/api/groups/:id/expenses` | List/create expenses |
-| GET/PATCH/DELETE | `/api/expenses/:id` | Read/update/delete an expense |
-| GET | `/api/groups/:id/balances` | Net balances and greedy transfer suggestions |
-| GET/POST | `/api/groups/:id/settlements` | Settlement history/record transfer |
-| GET | `/api/dashboard` | Database-backed overview and analytics |
-| GET | `/api/users/search?q=...` | Search registered users by name/email |
+## Security Considerations
 
-Authenticated endpoints use `Authorization: Bearer <token>`. API responses use `{ "success": true, "message": "...", "data": ... }`; errors use `{ "success": false, "message": "..." }` and validation errors can include an `errors` array.
+- Passwords are hashed using bcrypt.
+- JWT authentication protects restricted API endpoints.
+- Server-side authorization checks enforce group membership.
+- Request validation and payload size limits help prevent invalid requests.
+- Security headers and rate limiting provide additional protection.
 
-## Money and settlement rules
-- Monetary values are stored as integer paise, never floating-point rupees.
-- Equal splits distribute remainder paise deterministically so the shares sum exactly to the total.
-- Custom shares must have exactly one non-negative integer-paise share for every selected participant and sum to the total.
-- A payer's balance increases by the expense amount; each participant's balance decreases by their share. Confirmed settlements move the debtor's balance toward zero and reduce the recipient's credit.
-- The greedy settlement algorithm repeatedly matches the largest outstanding debtor with the largest creditor. It creates practical suggestions, but it is **not guaranteed to minimize the global number of transactions**.
-- Editing/deleting an expense changes the balance calculation because balances are derived from current expense and settlement records. Confirmed settlement records are retained. A new settlement can only be recorded if the payer currently owes and the recipient is currently owed, and the amount cannot exceed either side's current balance.
+**Note:** This is a student MVP. JWT tokens are stored in browser localStorage, which carries security risks in the presence of XSS vulnerabilities. Production deployment would require additional security hardening.
 
-## Security notes
-Passwords are bcrypt-hashed, JWTs are required for protected routes, group membership is checked server-side, input validation is applied to major write routes, request bodies are size-limited, and common security headers/rate limiting are enabled. For this student MVP, the JWT is kept in browser localStorage, which is vulnerable to token theft if an XSS vulnerability is introduced. A production deployment should consider secure, HttpOnly cookies, CSRF protection, stronger operational monitoring, and additional integration tests.
+## Future Enhancements
 
-## Project structure
+- Secure HttpOnly cookie-based authentication.
+- Expense visualization and advanced analytics.
+- Notifications for pending settlements.
+- Recurring expenses and payment reminders.
+- Additional API integration and security testing.
 
-```text
-src/
-  config/db.js
-  controllers/             # reserved for future controller extraction
-  middleware/auth.js
-  middleware/errors.js
-  models/User.js
-  models/Group.js
-  models/Expense.js
-  models/Settlement.js
-  routes/api.js
-  services/finance.js
-  utils/http.js
-  server.js
-public/
-  index.html
-  css/styles.css
-  js/app.js
-tests/finance.test.js
-scripts/seed.js
-TASK_DIVISION.md
-```
+## Author
 
-Bootstrap and Bootstrap Icons are loaded from jsDelivr; an internet connection is needed for those CDN assets unless you download and serve them locally.
+Jashan Mukheja
+
+BE Computer Science & Engineering
+
+[GitHub Profile](https://github.com/jashan012006)
+
+
+SplitMate – Making shared expenses simpler, clearer, and easier to settle.
